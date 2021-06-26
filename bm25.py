@@ -1,5 +1,21 @@
 import pandas as pd
 from tqdm import tqdm
+from itertools import chain
+from nltk.corpus import wordnet as wn
+
+# Query expansion 
+def query_expansion(query_list):
+    expanded_query = []
+    for word in tqdm(query_list):
+        synonyms = wn.synsets(word)
+        expansion = list(set(chain.from_iterable([word.lemma_names() for word in synonyms])))
+        expansion = [ x for x in expansion if "_" not in x ]
+        expanded_query += expansion
+    return(expanded_query)
+
+#print(query_expansion(["workout", "energy"]))
+# ['exercise', 'workout', 'exercising', 'energy', 'zip', 'vim', 'Energy', 'vigour', 'vigor', 'vitality', 'muscularity', 'get-up-and-go', 'push', 'DOE']
+
 
 ## BM25 Algo 
 
@@ -60,7 +76,7 @@ raw_df = raw_df.iloc[: , 1:]
 #print(raw_df['lyrics'][0:5])
 
 corpus = [] 
-for lyric in raw_df['lyrics'][-1000:]:
+for lyric in raw_df['lyrics'][-5:]:
     corpus.append(lyric)
 #print(len(corpus))
 
@@ -78,4 +94,4 @@ sorted_docs = [x for _, x in sorted(zip(scores, corpus), reverse=True)]
 # limit no of recommendations
 n = 5
 recommended_docs = sorted_docs[0:n]
-print(recommended_docs)
+#print(recommended_docs)
