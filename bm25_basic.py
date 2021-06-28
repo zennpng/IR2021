@@ -68,7 +68,6 @@ recommended_docs = sorted_docsID[0:n]
 print(recommended_docs)
     
 
-## BM25 (Relevant Feedback Version)
 
 
 
