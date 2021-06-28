@@ -7,8 +7,8 @@ def process_query(query):
     query_tokens = [w for w in query_tokens if w.lower() not in stopwords]
     return query_tokens
 
-test_query = "i need some workout energy now please thanks"
-print(process_query(test_query))
+# test_query = "i need some workout energy now please thanks"
+# print(process_query(test_query))
 # ['workout', 'energy']
 
 
