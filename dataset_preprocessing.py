@@ -8,16 +8,16 @@ musicdf = musicdf.drop(['len', 'age'], axis=1)
 # column tagging
 mood_attributes = ["dating", 
                    "violence",
-                   "world/life",
+                   "world/life",  # neglect
                    "night/time",
-                   "shake the audience",
+                   "shake the audience",  # neglect
                    "family/gospel",
                    "romantic",
-                   "communication",
+                   "communication",  # neglect
                    "obscene",
-                   "music",
+                   "music",  # neglect
                    "movement/places",
-                   "light/visual perceptions",
+                   "light/visual perceptions",  # neglect
                    "family/spiritual",
                    "like/girls",
                    "sadness",
