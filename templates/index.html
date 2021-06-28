@@ -46,18 +46,20 @@ body {
       <div class="col-lg-8 mx-auto">
         <h5 class="font-weight-light mb-4 font-italic text-white">Tell us how you are feeling or what music qualities you would like and we will do the rest</h5>
   
-          <!-- Custom rounded search bars with input group -->
-          <form action="">
+          <form action="{{ url_for('recommendations') }}" method="post">
             <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4">
               <div class="input-group">
-                <input type="search" placeholder="What's on your mind?" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+                <input type="search" name="query" placeholder="What's on your mind?" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+                <div>
+                <input type="search" name="number" placeholder="No. of recommendations?" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+                </div>
                 <div class="input-group-prepend">
                     <button id="submit-button" type="submit"><img src="{{url_for('static', filename='search.png')}}" width="25px" height="25px"></button>
                 </div>
               </div>
             </div>
           </form>
-          <!-- End -->  
+
       </div>
     </div>    
   </div>
