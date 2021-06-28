@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <head>
     <title>GOODMUSIC</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+<style>
+  .form-control:focus {
+    box-shadow: none;
+}
+  
+.form-control-underlined {
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-radius: 0;
+    padding-left: 0;
+}
+  
+body {
+    background: #ffd89b;
+    background: -webkit-linear-gradient(to right, #ffd89b, #19547b);
+    background: linear-gradient(to right, #ffd89b, #19547b);
+    min-height: 70vh;
+}
+  
+.form-control::placeholder {
+    font-size: 0.95rem;
+    color: #aaa;
+    font-style: italic;
+}
+</style>
 </head>
 
 <body>
@@ -13,7 +36,7 @@
       <div class="col-lg-9 mx-auto text-white text-center">
         <h1 class="display-4">Good Music Starts Here</h1>
         <p class="lead mb-0">SUTD IR 2021 Project</p>
-        <p class="lead">App by <a href="https://github.com/zennpng/IR2021" class="text-white">
+        <p class="lead">Created by <a href="https://github.com/zennpng/IR2021" class="text-white">
                   <u>The Real ESD Kids</u></a>
         </p>
       </div>
@@ -21,7 +44,7 @@
   
     <div class="row mb-5">
       <div class="col-lg-8 mx-auto">
-        <h5 class="font-weight-light mb-4 font-italic text-white">Tell us anything music and we will do the rest</h5>
+        <h5 class="font-weight-light mb-4 font-italic text-white">Tell us how you are feeling or what music qualities you would like and we will do the rest</h5>
   
           <!-- Custom rounded search bars with input group -->
           <form action="">
@@ -29,13 +52,12 @@
               <div class="input-group">
                 <input type="search" placeholder="What's on your mind?" aria-describedby="button-addon1" class="form-control border-0 bg-light">
                 <div class="input-group-prepend">
-                    <button id="submit-button" type="submit"><img src="search.png" width="25px" height="25px"></button>
+                    <button id="submit-button" type="submit"><img src="{{url_for('static', filename='search.png')}}" width="25px" height="25px"></button>
                 </div>
               </div>
             </div>
           </form>
-          <!-- End -->
-
+          <!-- End -->  
       </div>
     </div>    
   </div>
