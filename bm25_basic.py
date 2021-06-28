@@ -15,11 +15,6 @@ def query_expansion(query_list):
         expanded_query += expansion
     return(expanded_query)
 
-# query = query_expansion(["workout", "energy"])
-# print(query)
-# ['exercise', 'workout', 'exercising', 'energy', 'zip', 'vim', 'Energy', 'vigour', 'vigor', 'vitality', 'muscularity', 'get-up-and-go', 'push', 'DOE']
-
-
 ## BM25 (Basic Version)
 def bm25_basic(query, n=5):
     with open('BM25_index.txt','rb') as handle:
@@ -55,11 +50,8 @@ def bm25_basic(query, n=5):
     doc_id_list = list(range(1,28373))
     for doc_id in tqdm(range(1,28373)):
         scores.append(_score(query, doc_id, corpus, indexes))
-    #print(scores)
     sorted_scores = sorted(scores, reverse=True)
-    #print(sorted_scores)
     sorted_docsID = [x for _, x in sorted(zip(scores, doc_id_list), reverse=True)]
-    #print(sorted_docsID)
 
     # get recommended song infos
     recommended_song_infos = []
