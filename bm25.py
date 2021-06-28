@@ -2,96 +2,73 @@ import pandas as pd
 from tqdm import tqdm
 from itertools import chain
 from nltk.corpus import wordnet as wn
+import pickle
+import math 
 
 # Query expansion 
 def query_expansion(query_list):
     expanded_query = []
-    for word in tqdm(query_list):
+    for word in query_list:
         synonyms = wn.synsets(word)
         expansion = list(set(chain.from_iterable([word.lemma_names() for word in synonyms])))
         expansion = [ x for x in expansion if "_" not in x ]
         expanded_query += expansion
     return(expanded_query)
 
-#print(query_expansion(["workout", "energy"]))
+query = query_expansion(["workout", "energy"])
+# print(query)
 # ['exercise', 'workout', 'exercising', 'energy', 'zip', 'vim', 'Energy', 'vigour', 'vigor', 'vitality', 'muscularity', 'get-up-and-go', 'push', 'DOE']
 
 
-## BM25 Algo 
+## BM25 (Basic Version)
 
-def tf_(doc):
-    frequencies= {}
-    for letter in doc:
-        if letter in frequencies:
-            frequencies[letter] += 1
-        else:
-            frequencies[letter] = 1
-        
-    return frequencies
+with open('BM25_index.txt','rb') as handle:
+    indexes = pickle.loads(handle.read())
+#print(indexes["holiday"])
 
-#input = ["a","b","b","c","d"]
-#print(tf_(input))  {'a': 1, 'b': 2, 'c': 1, 'd': 1}
-
-def df_(docs):
-    df = {}
-    for doc in docs:
-        for term in set(doc):
-            df_count = df.get(term, 0) + 1
-            df[term] = df_count
-    return df
-
-#input = [['a','b','c'],['b','c','d'],['c','d','e']]
-#print(df_(input))  {'a': 1, 'b': 2, 'c': 3, 'd': 2, 'e': 1}
-
-def idf_(df, corpus_size):
-    import math 
-    idf = {}
-    for term, freq in df.items():
-        idf[term] = round(math.log((corpus_size)/(freq)),2)
-    return idf
-
-def _score(query, doc, docs, k1=1.5, b=0.75):
+def _score(query, doc_id, docs, index, k1=1.5, b=0.75):
     score = 0.0
-    tf = tf_(doc)
-    df = df_(docs)
-    idf = idf_(df, len(docs))
+    corpus_size = 28372
     avg_doc_len = 0 
     for d in docs:
         avg_doc_len += len(d)
     avg_doc_len = avg_doc_len/len(docs)
     for term in query:
-        if term not in tf.keys():
+        if term not in index.keys():
             continue
-        score += idf[term]*((k1+1)*tf[term])/(k1*((1-b)+b*(len(doc)/avg_doc_len))+tf[term])
+        df = index[term]["doc_freq"] 
+        idf = round(math.log((corpus_size)/(df)),2)
+        tf = 0 
+        for tfset in index[term]["doc_list"]:
+            if tfset[0] == doc_id:
+                tf = tfset[1]
+        doc_len = len(docs[doc_id-1])
+        score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
     return score
 
-# test data 
-query = "sun is shining what a wonderful day"
-#corpus = ['hello there good man', 'it is really quite windy in london', 'how is the weather in london today']
-
-# actual data preprocessing
 raw_df = pd.read_csv("tcc_ceds_music.csv")
-raw_df = raw_df.iloc[: , 1:]
-#print(raw_df.head())
-#print(raw_df['lyrics'][0:5])
 
 corpus = [] 
-for lyric in raw_df['lyrics'][-5:]:
+for lyric in raw_df['lyrics']:
     corpus.append(lyric)
-#print(len(corpus))
 
-tokenized_query = query.split(" ")
-tokenized_corpus = [doc.split(" ") for doc in corpus]
 scores = []
-for doc in tqdm(tokenized_corpus):
-    scores.append(_score(tokenized_query,doc,tokenized_corpus))
+doc_id_list = list(range(1,28373))
+for doc_id in tqdm(range(1,28373)):
+    scores.append(_score(query, doc_id, corpus, indexes))
 #print(scores)
 sorted_scores = sorted(scores, reverse=True)
 #print(sorted_scores)
-sorted_docs = [x for _, x in sorted(zip(scores, corpus), reverse=True)]
-#print(sorted_docs)
+sorted_docsID = [x for _, x in sorted(zip(scores, doc_id_list), reverse=True)]
+#print(sorted_docsID)
 
 # limit no of recommendations
 n = 5
-recommended_docs = sorted_docs[0:n]
-#print(recommended_docs)
+recommended_docs = sorted_docsID[0:n]
+print(recommended_docs)
+    
+
+## BM25 (Relevant Feedback Version)
+
+
+
