@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+
+{% block body %}
+<div class="col-lg-9 mx-auto text-white text-center" style="margin-top: -8%;">
+    <p class="lead mb-0">Song Recommendations:</p>
+    <br>
+    <table class="table table-responsive" style="margin-left:35%; width: 50%;">
+        {% for recommendation in recommendations %}
+            <tr class="lead">
+                <td class="lead" style="text-align: left;">{{recommendation}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
