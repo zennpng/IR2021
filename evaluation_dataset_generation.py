@@ -2,7 +2,7 @@ import pandas as pd
 
 # load query csv file and music csv file
 musicdf = pd.read_csv('tcc_ceds_music.csv')
-querydf = pd.read_csv('query.csv')
+querydf = pd.read_csv('evaluation_dataset.csv')
 
 # convert songIDs column in querydf to dtype 'object'
 querydf = querydf.astype({'songIDs':object})
@@ -26,4 +26,4 @@ for row in range(len(querydf)):
     querydf.loc[row,'songIDs'] = final_song_list
 
 # output results as new csv
-querydf.to_csv('query_eval_set.csv', index=False)
+querydf.to_csv('evaluation_dataset_filled.csv', index=False)
