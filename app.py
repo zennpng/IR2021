@@ -12,7 +12,8 @@ def recommendations():
     query = request.form.get("query")
     number = request.form.get("number")
     recommendations = engine.generate_recommendations(query, number)
-    for song in range(len(recommendations)):
+    #recommendations = ["mr. vegas - party tun up, 2012 reggae","citizen king - better days, 1999 pop","fall out boy - champion, 2018 rock"]
+    for song in range(len(recommendations)): 
         recommendations[song] = str(song+1) + ". " + recommendations[song]
     return render_template('recommendations.html', recommendations = recommendations)
 
