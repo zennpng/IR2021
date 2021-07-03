@@ -6,10 +6,8 @@ Created on Thu Jul  1 10:30:57 2021
 """
 import pandas as pd
 from tqdm import tqdm
-from itertools import chain
-from nltk.corpus import wordnet as wn
 import pickle
-#import math 
+import query_preprocessing
 import scipy as sp
 import numpy as np
 
@@ -25,19 +23,10 @@ import numpy as np
 #method: to measure similairity
 query = ["miss", "family"] 
 
-#Query Expansion
-def query_expansion(query_list):
-    expanded_query = []
-    for word in query_list: 
-        synonyms = wn.synsets(word)
-        expansion = list(set(chain.from_iterable([word.lemma_names() for word in synonyms])))
-        expansion = [ x for x in expansion if "_" not in x ]
-        expanded_query += expansion
-    return(expanded_query)
 
 #VSM
 
-def type_of_vsm(query, vsm_type=1, method="cosine", n=10):
+def type_of_vsm(query, vsm_type=1, method="cosine", n=5):
     music_df = pd.read_csv("tcc_ceds_music.csv")
     
     if vsm_type == 1:
@@ -101,8 +90,9 @@ def type_of_vsm(query, vsm_type=1, method="cosine", n=10):
     return(recommended_song_infos,sorted_ID_final, prod_list_final)
             
             
-#new_query = query_expansion(query)               
-#song_recc, sortID, prodlist= type_of_vsm(new_query, method = "dotprod", vsm_type = 1)          
+#new_query = query_preprocessing.query_expansion(query)               
+#song_recc, sortID, prodlist= type_of_vsm(new_query, method = "dotprod", vsm_type = 1)    
+#print(song_recc)      
         
     
     

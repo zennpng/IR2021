@@ -1,19 +1,8 @@
 import pandas as pd
 from tqdm import tqdm
-from itertools import chain
-from nltk.corpus import wordnet as wn
 import pickle
 import math 
 
-# Query expansion 
-def query_expansion(query_list):
-    expanded_query = []
-    for word in query_list:
-        synonyms = wn.synsets(word)
-        expansion = list(set(chain.from_iterable([word.lemma_names() for word in synonyms])))
-        expansion = [ x for x in expansion if "_" not in x ]
-        expanded_query += expansion
-    return(expanded_query)
 
 ## BM25 (Basic Version)
 def bm25_basic(query, n=5):

@@ -1,6 +1,9 @@
 Flask
 pandas
+scipy
+numpy
 tqdm    
 nltk
 sklearn
 gensim
+python-Levenshtein
