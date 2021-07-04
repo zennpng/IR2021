@@ -5,3 +5,5 @@
 /VSM1_2_index.txt
 
 /.vscode
+
+__pycache__/
