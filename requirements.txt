@@ -7,3 +7,4 @@ nltk
 sklearn
 gensim
 python-Levenshtein
+matplotlib

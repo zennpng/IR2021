@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # remove irrelevant columns
 musicdf = pd.read_csv('tcc_ceds_music.csv')
@@ -42,7 +43,7 @@ song_attributes = ["artist_name",
 28372
 '''
 
-# 2. most popular artists
+# 2. most common artists
 #print(musicdf['artist_name'].value_counts()[0:5]) 
 '''
 johnny cash        190
@@ -62,7 +63,13 @@ george jones       107
 2012    588
 '''
 
-# 4. genre breakdown 
+# 4. year frequency plot
+fig, ax = plt.subplots(figsize=(20, 5))
+musicdf['release_date'].value_counts().sort_index().plot(ax=ax, kind='bar')
+#fig.savefig("year_freq_plot.jpg")
+
+
+# 5. genre breakdown 
 #print(musicdf['genre'].value_counts())
 '''
 pop        7042
@@ -74,7 +81,7 @@ reggae     2498
 hip hop     904
 '''
 
-# 5. song name breakdown
+# 6. song name breakdown
 #print(musicdf['track_name'].value_counts()[0:5])
 '''
 tonight             17

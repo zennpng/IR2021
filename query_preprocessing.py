@@ -22,4 +22,4 @@ def query_expansion(query_list):
         expanded_query += expansion
     return(expanded_query)
 
-
+#print(query_expansion(["gym","tired","motivation","exertion"]))
