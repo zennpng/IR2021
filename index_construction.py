@@ -1,5 +1,6 @@
 import pandas as pd
 import pickle
+from tqdm import tqdm
 
 class IndexConstructor:
 
@@ -107,7 +108,7 @@ class IndexConstructor:
         if for_model == 'BM25':
             
             # iterate through each song (document) in the dataset
-            for row in range(len(self.dataset)):    
+            for row in tqdm(range(len(self.dataset))):    
                 # retrieve the id and lyrics for this song
                 doc_id = self.dataset.loc[row,'doc_id']
                 lyrics = self.dataset.loc[row,'lyrics']
@@ -123,7 +124,7 @@ class IndexConstructor:
             # obtain vector representations of song attributes
             attr_vec = self.make_vectors()
 
-            for row in range(len(self.dataset)):
+            for row in tqdm(range(len(self.dataset))):
 
                 # retrieve the id and attribute values for this song
                 doc_id = self.dataset.loc[row,'doc_id']
@@ -181,7 +182,7 @@ class IndexConstructor:
             # obtain vector representations of song attributes
             attr_vec = self.make_vectors()
 
-            for row in range(len(self.dataset)):
+            for row in tqdm(range(len(self.dataset))):
 
                 # retrieve the id and attribute values for this song
                 doc_id = self.dataset.loc[row,'doc_id']
