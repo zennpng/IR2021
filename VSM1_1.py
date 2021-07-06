@@ -79,7 +79,7 @@ def type_of_vsm(query, vsm_type=1, method="cosine", n=5):
                 #sort from highest to lowest value
                 sorted_ID = [x for _, x in sorted(zip(prod_list, doc_id_list), reverse=True)]
                 
-            return(sorted_ID, prod_list)   
+            return(sorted_ID[:n], prod_list[:n])   
     
     sorted_ID_final, prod_list_final = vsm(query, method, n)            
     recommended_song_infos = []
@@ -87,7 +87,7 @@ def type_of_vsm(query, vsm_type=1, method="cosine", n=5):
         recommended_song_infos.append(music_df['artist_name'][docID-1] + " - " + music_df['track_name'][docID-1] + ", " + str(music_df['release_date'][docID-1]) + " " + music_df['genre'][docID-1])
                 
         
-    return(recommended_song_infos,sorted_ID_final, prod_list_final)
+    return(recommended_song_infos,sorted_ID_final[:n], prod_list_final)
             
             
 #new_query = query_preprocessing.query_expansion(query)               

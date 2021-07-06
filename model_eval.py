@@ -1,6 +1,16 @@
 import pandas as pd
 import numpy as np
 import math
+import ast
+
+import bm25_basic as bm
+import VSM1_1 as vsm
+import query_preprocessing
+
+# import nltk
+# nltk.download('wordnet')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 
 class Evaluator:
 
@@ -38,10 +48,13 @@ class Evaluator:
                 total_relevant += 1
                 sum_p += self.precision_at_k(r,k+1)
         
-        avg_p = sum_p/total_relevant
+        try:
+            avg_p = sum_p/total_relevant
+        except:
+            avg_p = 0
         return avg_p    
 
-
+    # performance measure 1
     def mean_average_precision(self, rs):
         '''
         rs = [[1, 1, 0, 1, 0, 1, 0, 0, 0, 1], [0,1]]
@@ -90,9 +103,29 @@ class Evaluator:
         # calc ideal ranking idcg, sort rankings by desc order
         r.sort(reverse=True)
         idcg = self.dcg_at_k(r,k)
-        ndcg = dcg/idcg
+        try:
+            ndcg = dcg/idcg
+        except:
+            ndcg = 0
 
         return ndcg
+
+    # performance measure 2
+    def mean_ndcg(self,rs,k=10):
+        '''
+        rs = [[1, 1, 0, 1, 0, 1, 0, 0, 0, 1], [0,1]]
+
+        rs: relevance scores for entire test set (each item is results for each song)
+
+        Returns: Mean NDCG
+        '''
+        sum_ndcg = 0
+        for r in rs:
+            sum_ndcg += self.ndcg_at_k(r,k)
+        m_ndcg = sum_ndcg/len(rs)
+        return m_ndcg
+
+    
 
 
     # main function of this Evaluator class
@@ -100,7 +133,76 @@ class Evaluator:
         '''
         uses the evaluation dataset to calculate various performance metrics of a model
         '''
-        pass
+        # container for relevance scores of all queries
+        rs =[]
+        
+        # for each query in test set, check relevance of song recommendations from model
+        for row in range(len(self.testset)): # NOTE replace this with length of entire test set FOR FINAL
+
+            # retrieve test set query
+            query = self.testset.loc[row, 'queryString']
+
+            # pre-process the test query
+            tokenQuery = query_preprocessing.process_query(query)
+            expandedQuery = query_preprocessing.query_expansion(tokenQuery)
+
+            # get answers (relevant doc for this test query)
+            relevant_answers = self.testset.loc[row, 'songIDs'] # this is a string '[number, number, number]'
+            relevant_answers = ast.literal_eval(relevant_answers)
+
+            # container for relevance of model outputs for each query
+            r = []
+
+            # get model output
+            if model == 'bm25_basic':
+                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, 30) # change how many results we want to eval
+                for id in selected_docsID:
+                    if id in relevant_answers:
+                        r.append(1)
+                    else:
+                        r.append(0)
+            
+            elif model == 'vsm_1_1':
+                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=30)
+                print(sorted_ID_final)
+                for id in sorted_ID_final:
+                    if id in relevant_answers:
+                        r.append(1)
+                    else:
+                        r.append(0)
+            
+            # store relevance scores of this query into the global container
+            rs.append(r)
+
+        # evaluate performance using rs values
+        # print(rs)
+
+        # MAP
+        m_avg_p = self.mean_average_precision(rs)
+
+        # mean NDCG across different queries
+        m_ndcg = self.mean_ndcg(rs)
+
+        return m_avg_p, m_ndcg
 
 
 ### SCRIPT ###
+model_eval = Evaluator('test_dataset.csv')
+m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic')
+
+print("###################################")
+print("#   Performance Metric for BM25   #")
+print("###################################")
+print("Mean Average Precision: ", m_avg_p)
+print("Mean NDCG: ", m_ndcg)
+print("-----------------------------------")
+print('\n')
+
+m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1')
+
+print("###################################")
+print("#   Performance Metric for VSM1   #")
+print("###################################")
+print("Mean Average Precision: ", m_avg_p)
+print("Mean NDCG: ", m_ndcg)
+print("-----------------------------------")
