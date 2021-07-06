@@ -12,3 +12,6 @@ relevantDocs = list(set(relevantDocs_raw))
 
 #print(relevantDocs)
 #print(len(relevantDocs))
+
+validation.to_csv("validation_dataset.csv")
+test.to_csv("test_dataset.csv")
