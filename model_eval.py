@@ -125,19 +125,16 @@ class Evaluator:
         m_ndcg = sum_ndcg/len(rs)
         return m_ndcg
 
-    
-
-
     # main function of this Evaluator class
-    def evaluate(self,model):
+    def evaluate(self,model, n):
         '''
-        uses the evaluation dataset to calculate various performance metrics of a model
+        uses the evaluation dataset to calculate various performance metrics of a model based on first n retrieved docs
         '''
         # container for relevance scores of all queries
         rs =[]
         
         # for each query in test set, check relevance of song recommendations from model
-        for row in range(len(self.testset)): # NOTE replace this with length of entire test set FOR FINAL
+        for row in range(1): # NOTE replace this with length of entire test set FOR FINAL
 
             # retrieve test set query
             query = self.testset.loc[row, 'queryString']
@@ -155,7 +152,7 @@ class Evaluator:
 
             # get model output
             if model == 'bm25_basic':
-                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, 30) # change how many results we want to eval
+                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, n)
                 for id in selected_docsID:
                     if id in relevant_answers:
                         r.append(1)
@@ -163,8 +160,7 @@ class Evaluator:
                         r.append(0)
             
             elif model == 'vsm_1_1':
-                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=30)
-                print(sorted_ID_final)
+                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=n)
                 for id in sorted_ID_final:
                     if id in relevant_answers:
                         r.append(1)
@@ -188,7 +184,7 @@ class Evaluator:
 
 ### SCRIPT ###
 model_eval = Evaluator('test_dataset.csv')
-m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic')
+m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic',30)
 
 print("###################################")
 print("#   Performance Metric for BM25   #")
@@ -198,7 +194,7 @@ print("Mean NDCG: ", m_ndcg)
 print("-----------------------------------")
 print('\n')
 
-m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1')
+m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1',30)
 
 print("###################################")
 print("#   Performance Metric for VSM1   #")
