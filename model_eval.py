@@ -19,6 +19,7 @@ class Evaluator:
         init an Evaluator object that stores the evaluation dataset in memory
         '''
         self.testset = pd.read_csv(eval_filepath)
+        self.predictset = pd.read_csv(eval_filepath)
 
 
     # define some utility functions
@@ -125,17 +126,15 @@ class Evaluator:
         m_ndcg = sum_ndcg/len(rs)
         return m_ndcg
 
-    # main function of this Evaluator class
-    def evaluate(self,model, n):
-        '''
-        uses the evaluation dataset to calculate various performance metrics of a model based on first n retrieved docs
-        '''
-        # container for relevance scores of all queries
-        rs =[]
-        
-        # for each query in test set, check relevance of song recommendations from model
-        for row in range(1): # NOTE replace this with length of entire test set FOR FINAL
+    # main functions of this Evaluator class
+    def make_predictions(self, model):
 
+        # create and convert predictions column in self.predictset to dtype 'object'
+        self.predictset['predictions'] = ''
+        self.predictset = self.predictset.astype({'predictions':object})
+        
+        # for each query in test set, obtain song recommendations from model
+        for row in range(len(self.testset)):
             # retrieve test set query
             query = self.testset.loc[row, 'queryString']
 
@@ -143,29 +142,51 @@ class Evaluator:
             tokenQuery = query_preprocessing.process_query(query)
             expandedQuery = query_preprocessing.query_expansion(tokenQuery)
 
+            # get model output
+            if model == 'bm25_basic':
+                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, 28373)
+                self.predictset.at[row,'predictions'] = selected_docsID
+                
+            
+            elif model == 'vsm_1_1':
+                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
+                self.predictset.at[row,'predictions'] = sorted_ID_final
+        
+        # output predictions
+        filename = model + '_predictions.csv'
+        self.predictset.to_csv(filename, index=False)
+
+
+    def evaluate(self, model, n):
+        '''
+        uses the evaluation dataset to calculate various performance metrics of a model based on first n retrieved docs
+        '''
+        # load predictions dataset
+        filename = model + '_predictions.csv'
+        self.predictset = pd.read_csv(filename)
+        
+        # container for relevance scores of all queries
+        rs =[]
+        
+        # for each query in test set, check relevance of song recommendations from model
+        for row in range(len(self.predictset)):
+
             # get answers (relevant doc for this test query)
-            relevant_answers = self.testset.loc[row, 'songIDs'] # this is a string '[number, number, number]'
+            relevant_answers = self.predictset.loc[row, 'songIDs'] # this is a string '[number, number, number]'
             relevant_answers = ast.literal_eval(relevant_answers)
+
+            # get predictions
+            predictions = self.predictset.loc[row, 'predictions']
+            predictions = ast.literal_eval(predictions) 
 
             # container for relevance of model outputs for each query
             r = []
 
-            # get model output
-            if model == 'bm25_basic':
-                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, n)
-                for id in selected_docsID:
-                    if id in relevant_answers:
-                        r.append(1)
-                    else:
-                        r.append(0)
-            
-            elif model == 'vsm_1_1':
-                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=n)
-                for id in sorted_ID_final:
-                    if id in relevant_answers:
-                        r.append(1)
-                    else:
-                        r.append(0)
+            for id in predictions[:n]:
+                if id in relevant_answers:
+                    r.append(1)
+                else:
+                    r.append(0)
             
             # store relevance scores of this query into the global container
             rs.append(r)
@@ -184,21 +205,24 @@ class Evaluator:
 
 ### SCRIPT ###
 model_eval = Evaluator('test_dataset.csv')
-m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic',30)
+model_eval.make_predictions('bm25_basic')
+# m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic',30)
 
-print("###################################")
-print("#   Performance Metric for BM25   #")
-print("###################################")
-print("Mean Average Precision: ", m_avg_p)
-print("Mean NDCG: ", m_ndcg)
-print("-----------------------------------")
-print('\n')
+# print("###################################")
+# print("#   Performance Metric for BM25   #")
+# print("###################################")
+# print("Mean Average Precision: ", m_avg_p)
+# print("Mean NDCG: ", m_ndcg)
+# print("-----------------------------------")
+# print('\n')
 
-m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1',30)
+model_eval = Evaluator('test_dataset.csv')
+model_eval.make_predictions('vsm_1_1')
+# m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1',30)
 
-print("###################################")
-print("#   Performance Metric for VSM1   #")
-print("###################################")
-print("Mean Average Precision: ", m_avg_p)
-print("Mean NDCG: ", m_ndcg)
-print("-----------------------------------")
+# print("###################################")
+# print("#   Performance Metric for VSM1   #")
+# print("###################################")
+# print("Mean Average Precision: ", m_avg_p)
+# print("Mean NDCG: ", m_ndcg)
+# print("-----------------------------------")
