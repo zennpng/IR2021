@@ -44,9 +44,10 @@ def bm25_basic(query, n=5):
 
     # get recommended song infos
     recommended_song_infos = []
-    for docID in sorted_docsID[0:n]:
+    selected_docsID = sorted_docsID[0:n]
+    for docID in selected_docsID:
         recommended_song_infos.append(music_df['artist_name'][docID-1] + " - " + music_df['track_name'][docID-1] + ", " + str(music_df['release_date'][docID-1]) + " " + music_df['genre'][docID-1])
-    return recommended_song_infos
+    return selected_docsID, recommended_song_infos
     
 
 
