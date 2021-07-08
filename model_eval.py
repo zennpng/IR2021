@@ -7,11 +7,6 @@ import bm25_basic as bm
 import VSM1_1 as vsm
 import query_preprocessing
 
-# import nltk
-# nltk.download('wordnet')
-# nltk.download('punkt')
-# nltk.download('stopwords')
-
 class Evaluator:
 
     def __init__(self, eval_filepath):
@@ -126,6 +121,44 @@ class Evaluator:
         m_ndcg = sum_ndcg/len(rs)
         return m_ndcg
 
+    
+    def reciprocal_rank(self,r):
+        '''
+        r: relevance scores e.g. [0,0,1,0,1,1]
+
+        Returns: reciprocal rank 1/R where R is position of first relevant doc
+        '''
+        # store flag of whether first relevant doc has been found
+        relevant_doc_not_found = True
+        
+        rank = 0
+        # iterate through scores in r
+        for i in range(len(r)):
+            if r[i] == 1 and relevant_doc_not_found:
+                rank = i+1
+                relevant_doc_not_found = False
+        try:
+            return 1/rank
+        except:
+            return 0
+    
+    # performance measure 3
+    def mean_reciprocal_rank(self,rs):
+        '''
+        rs = [[1, 1, 0, 1, 0, 1, 0, 0, 0, 1], [0,1]]
+
+        rs: relevance scores for entire test set (each item is results for each song)
+
+        Returns: Mean reciprocal rank across queries
+        '''
+        sum_rr = 0
+        for r in rs:
+            sum_rr += self.reciprocal_rank(r)
+        m_rr = sum_rr/len(rs)
+
+        return m_rr
+
+
     # main functions of this Evaluator class
     def make_predictions(self, model):
 
@@ -192,37 +225,40 @@ class Evaluator:
             rs.append(r)
 
         # evaluate performance using rs values
-        # print(rs)
-
         # MAP
         m_avg_p = self.mean_average_precision(rs)
 
         # mean NDCG across different queries
         m_ndcg = self.mean_ndcg(rs)
 
-        return m_avg_p, m_ndcg
+        # mean reciprocal rank MRR
+        m_rr = self.mean_reciprocal_rank(rs)
+
+        return m_avg_p, m_ndcg, m_rr
 
 
 ### SCRIPT ###
 model_eval = Evaluator('test_dataset.csv')
 model_eval.make_predictions('bm25_basic')
-# m_avg_p, m_ndcg = model_eval.evaluate('bm25_basic',30)
+# m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_basic',30)
 
 # print("###################################")
 # print("#   Performance Metric for BM25   #")
 # print("###################################")
 # print("Mean Average Precision: ", m_avg_p)
 # print("Mean NDCG: ", m_ndcg)
+# print("Mean Reciprocal Rank: ", m_rr)
 # print("-----------------------------------")
 # print('\n')
 
 model_eval = Evaluator('test_dataset.csv')
 model_eval.make_predictions('vsm_1_1')
-# m_avg_p, m_ndcg = model_eval.evaluate('vsm_1_1',30)
+# m_avg_p, m_ndcg, m_rr = model_eval.evaluate('vsm_1_1',30)
 
 # print("###################################")
 # print("#   Performance Metric for VSM1   #")
 # print("###################################")
 # print("Mean Average Precision: ", m_avg_p)
 # print("Mean NDCG: ", m_ndcg)
+# print("Mean Reciprocal Rank: ", m_rr)
 # print("-----------------------------------")
