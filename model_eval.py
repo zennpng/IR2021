@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 import math
 import ast
+from tqdm import tqdm
 
-import bm25_basic as bm
+import bm25_basic_multiprocess as bm
 import VSM1_1 as vsm
 import query_preprocessing
 
@@ -168,6 +169,9 @@ class Evaluator:
         
         # for each query in test set, obtain song recommendations from model
         for row in range(len(self.testset)):
+            
+            print("Query ", row)
+
             # retrieve test set query
             query = self.testset.loc[row, 'queryString']
 
@@ -202,7 +206,7 @@ class Evaluator:
         rs =[]
         
         # for each query in test set, check relevance of song recommendations from model
-        for row in range(len(self.predictset)):
+        for row in tqdm(range(len(self.predictset))):
 
             # get answers (relevant doc for this test query)
             relevant_answers = self.predictset.loc[row, 'songIDs'] # this is a string '[number, number, number]'
@@ -236,29 +240,29 @@ class Evaluator:
 
         return m_avg_p, m_ndcg, m_rr
 
+if __name__ == '__main__':
+    ### SCRIPT ###
+    model_eval = Evaluator('test_dataset.csv')
+    # model_eval.make_predictions('bm25_basic')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_basic',30)
 
-### SCRIPT ###
-model_eval = Evaluator('test_dataset.csv')
-model_eval.make_predictions('bm25_basic')
-# m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_basic',30)
+    print("###################################")
+    print("#   Performance Metric for BM25   #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
+    print('\n')
 
-# print("###################################")
-# print("#   Performance Metric for BM25   #")
-# print("###################################")
-# print("Mean Average Precision: ", m_avg_p)
-# print("Mean NDCG: ", m_ndcg)
-# print("Mean Reciprocal Rank: ", m_rr)
-# print("-----------------------------------")
-# print('\n')
+    model_eval = Evaluator('test_dataset.csv')
+    # model_eval.make_predictions('vsm_1_1')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('vsm_1_1',30)
 
-model_eval = Evaluator('test_dataset.csv')
-model_eval.make_predictions('vsm_1_1')
-# m_avg_p, m_ndcg, m_rr = model_eval.evaluate('vsm_1_1',30)
-
-# print("###################################")
-# print("#   Performance Metric for VSM1   #")
-# print("###################################")
-# print("Mean Average Precision: ", m_avg_p)
-# print("Mean NDCG: ", m_ndcg)
-# print("Mean Reciprocal Rank: ", m_rr)
-# print("-----------------------------------")
+    print("###################################")
+    print("#   Performance Metric for VSM1   #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
