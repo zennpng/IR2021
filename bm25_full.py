@@ -21,13 +21,13 @@ def bm25(query, n=5):
             if term not in index.keys():
                 continue
             df = index[term]["doc_freq"] 
-            idf = corpus_size/df
+            idf = round(math.log(corpus_size/df),2)
             tf = 0 
             for tfset in index[term]["doc_list"]:
                 if tfset[0] == doc_id:
                     tf = tfset[1]
             doc_len = len(docs[doc_id-1])
-            score += round(math.log(idf*((k1+1)*(tf+0.01))/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)),2)
+            score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
         return score
 
     music_df = pd.read_csv("tcc_ceds_music.csv")
@@ -74,13 +74,13 @@ def bm25(query, n=5):
                     if [doc for doc in termdocmap if doc[0] == rdoc] != []:
                         vr_t += 1
                 vnr_t = vr - vr_t
-                idf_rf = ((vr_t+0.5)/(vnr_t+0.5))/((df-vr_t+0.5)/(corpus_size-df-vr+vr_t+0.5))
+                idf_rf = round(math.log(((vr_t+0.5)/(vnr_t+0.5))/((df-vr_t+0.5)/(corpus_size-df-vr+vr_t+0.5))),2)
                 tf = 0 
                 for tfset in index[term]["doc_list"]:
                     if tfset[0] == doc_id:
                         tf = tfset[1]
                 doc_len = len(docs[doc_id-1])
-                score += round(math.log(idf_rf*((k1+1)*(tf+0.01))/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)),2)
+                score += idf_rf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
             return score
 
         updatedScores = []
