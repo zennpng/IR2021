@@ -4,7 +4,9 @@ import pickle
 import math
 import validation_test_split 
 
-## BM25 (Relevance Feedback Version)
+## BM25 (Relevance Feedback Version) 
+#! *****************Deprecated*****************
+
 def bm25_RF(query, n=5):
     with open('BM25_index.txt','rb') as handle:
         indexes = pickle.loads(handle.read())
