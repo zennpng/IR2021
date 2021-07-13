@@ -4,9 +4,32 @@ import math
 import ast
 from tqdm import tqdm
 
-import bm25_basic_multiprocess as bm
+import bm25_basic_multiprocess as bm_basic
 import VSM1_1 as vsm
 import query_preprocessing
+import bm25_full_multiprocess as bm
+import neural_net
+
+import torch
+from torch import nn
+
+class NeuralNetwork(nn.Module):
+        def __init__(self):
+            super(NeuralNetwork, self).__init__()
+            # self.flatten = nn.Flatten()
+            self.layer_stack = nn.Sequential(
+                nn.Linear(300, 100),
+                nn.Sigmoid(),
+                nn.Linear(100, 100),
+                nn.Sigmoid(),
+                nn.Linear(100, 22),
+                nn.Softmax()
+            )
+
+        def forward(self, x):
+            # x = self.flatten(x)
+            logits = self.layer_stack(x)
+            return logits
 
 class Evaluator:
 
@@ -162,6 +185,13 @@ class Evaluator:
 
     # main functions of this Evaluator class
     def make_predictions(self, model):
+        
+        # load relevant external models
+        import gensim.downloader as api
+        wv = api.load('word2vec-google-news-300')
+
+        # load neural net model in case it is used
+        nnmodel = torch.load('model.pth')
 
         # create and convert predictions column in self.predictset to dtype 'object'
         self.predictset['predictions'] = ''
@@ -181,13 +211,33 @@ class Evaluator:
 
             # get model output
             if model == 'bm25_basic':
-                selected_docsID, recommended_song_infos = bm.bm25_basic(expandedQuery, 28373)
+                selected_docsID, recommended_song_infos = bm_basic.bm25_basic(expandedQuery, 28373)
                 self.predictset.at[row,'predictions'] = selected_docsID
                 
             
             elif model == 'vsm_1_1':
                 recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
                 self.predictset.at[row,'predictions'] = sorted_ID_final
+
+            elif model == 'bm25_full':
+                selected_docsID, recommended_song_infos = bm.bm25(expandedQuery, 28373)
+                self.predictset.at[row,'predictions'] = selected_docsID
+
+            elif model == 'neuralnet':
+                # vectorise the query
+                q_vec = 0
+                for term in expandedQuery:
+                    if term in wv:
+                        q_vec += wv[term]
+                # pass query vector through neural net to get scores of each class attribute
+                q_tensor = torch.tensor(q_vec)
+                pred = nnmodel(q_tensor)
+                # convert tensor back to numpy
+                pred = pred.detach().numpy()
+                
+                recommended_song_infos,sorted_ID_final, prod_list_final = neural_net.type_of_nn(pred, method = "dotprod", nn_type = 1, n=28373)
+                self.predictset.at[row,'predictions'] = sorted_ID_final
+
         
         # output predictions
         filename = model + '_predictions.csv'
@@ -266,3 +316,30 @@ if __name__ == '__main__':
     print("Mean NDCG: ", m_ndcg)
     print("Mean Reciprocal Rank: ", m_rr)
     print("-----------------------------------")
+    print('\n')
+
+    model_eval = Evaluator('test_dataset.csv')
+    # model_eval.make_predictions('bm25_full')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_full',30)
+
+    print("###################################")
+    print("# Performance Metric for BM25full #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
+    print('\n')
+
+    model_eval = Evaluator('test_dataset.csv')
+    # model_eval.make_predictions('neuralnet')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('neuralnet',30)
+
+    print("###################################")
+    print("#   Performance Metric for NN   #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
+    print('\n')    
