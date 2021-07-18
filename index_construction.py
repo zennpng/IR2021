@@ -237,6 +237,41 @@ class IndexConstructor:
                 
                 # update index
                 self.index[str(doc_id)] = [doc_vec1,doc_vec2]
+        
+        elif for_model == 'neuralnet':
+            
+            # iterate through each song (document) in the dataset
+            for row in tqdm(range(len(self.dataset))):    
+                # retrieve the id and attribute values for this song
+                doc_id = self.dataset.loc[row,'doc_id']
+                weight_dating = self.dataset.loc[row,'dating']
+                weight_violence = self.dataset.loc[row,'violence']
+                weight_worldlife = self.dataset.loc[row,'world/life']
+                weight_nighttime = self.dataset.loc[row,'night/time']
+                weight_shaketheaudience = self.dataset.loc[row,'shake the audience']
+                weight_familygospel = self.dataset.loc[row, 'family/gospel']
+                weight_romantic = self.dataset.loc[row, 'romantic']
+                weight_communication = self.dataset.loc[row,'communication']
+                weight_obscene = self.dataset.loc[row,'obscene']
+                weight_music = self.dataset.loc[row,'music']
+                weight_movementplaces = self.dataset.loc[row,'movement/places']
+                weight_lightvisual = self.dataset.loc[row,'light/visual perceptions']
+                weight_familyspiritual = self.dataset.loc[row,'family/spiritual']
+                weight_likegirls = self.dataset.loc[row,'like/girls']
+                weight_sadness = self.dataset.loc[row, 'sadness']
+                weight_feelings = self.dataset.loc[row,'feelings']
+                weight_danceability = self.dataset.loc[row,'danceability']
+                weight_loudness = self.dataset.loc[row,'loudness']
+                weight_acousticness = self.dataset.loc[row, 'acousticness']
+                weight_instrumental = self.dataset.loc[row,'instrumentalness']
+                weight_valence = self.dataset.loc[row, 'valence']
+                weight_energy = self.dataset.loc[row,'energy']
+
+                # calculate the document vector by summing weighted attr vectors
+                doc_vec = self.dataset.iloc[row, 7:29]
+
+                # update index
+                self.index[str(doc_id)] = doc_vec
 
 
     def output(self, file_path):
@@ -292,3 +327,15 @@ print("Constructed index for VSM 1_2")
 VSM_indexer.output('VSM1_2_index.txt')
 print("VSM 1_2 index saved successfully in the format: ", "{'doc_id': [doc_vector1,doc_vector2], ...}")
 print(len(VSM_indexer.index.keys()), 'documents')
+
+### Neural Net ###
+NN_indexer = IndexConstructor('tcc_ceds_music.csv')
+print("Initialized Index Constructor for NN")
+print("Constructing index...")
+
+NN_indexer.construct_index('neuralnet')
+print("Constructed index for NN")
+
+NN_indexer.output('NN_index.txt')
+print("NN index saved successfully in the format: ", "{'doc_id': doc_vector, ...}")
+print(len(NN_indexer.index.keys()), 'documents')
