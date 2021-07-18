@@ -1,5 +1,6 @@
 import re
 import math
+from tqdm import tqdm
 import numpy as np
 import LangModel_preprocessing
 from dataset_preprocessing import musicdf
@@ -76,8 +77,8 @@ def langmodel(query, n=5):
     indexed_terms = actual_dataset_model_smoothed.unique_words + 1 # add 1 for UNK
     
     score_list = []
-    for lyric in actual_dataset:
-        lyric_dataset_model_smoothed = UnigramLanguageModel(lyric, mode="doc", smoothing=True)
+    for lyric in tqdm(actual_dataset):
+        lyric_dataset_model_smoothed = UnigramLanguageModel([lyric], mode="doc", smoothing=True)
         score = calculate_interpolated_sentence_probability(query, lyric_dataset_model_smoothed, actual_dataset_model_smoothed)
         score_list.append(score)
 
