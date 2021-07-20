@@ -142,3 +142,17 @@ night/time    1825
 romantic      1524
 feelings       612
 '''
+
+import pickle
+
+# create global vocab of lyric words
+global_lyrics_vocab = []
+lyrics_list = musicdf["lyrics"].tolist()
+for lyric in lyrics_list:
+    global_lyrics_vocab += lyric.split()
+global_lyrics_vocab = list(set(global_lyrics_vocab))
+print(len(global_lyrics_vocab))
+
+# pickle it into a txt file
+#with open("lyrics_vocab.txt", "wb") as fp:   
+#    pickle.dump(global_lyrics_vocab, fp)
