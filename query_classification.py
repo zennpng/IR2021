@@ -1,4 +1,5 @@
 import math
+import random
 import numpy as np
 import dataset_preprocessing
 import LangModel_preprocessing
@@ -73,6 +74,8 @@ df = dataset_preprocessing.musicdf
 topics = df.topic.unique()
 for topic in topics:
     lyrics_topic = df[df['topic'] == topic]["lyrics"].tolist()
+    #lyrics_topic = random.sample(lyrics_topic, 100)
+    #print(lyrics_topic[0:2])
     data_topicsplit.append(lyrics_topic)
 
 def query_langmodel(query):
@@ -87,7 +90,7 @@ def query_langmodel(query):
         lyric_dataset_model_smoothed = UnigramLanguageModel([lyric], mode="doc", smoothing=True)
         score = calculate_interpolated_sentence_probability(query, lyric_dataset_model_smoothed, actual_dataset_model_smoothed)
         score_list.append(score)
-
+    score_list = [float(i)/sum(score_list) for i in score_list]
     score_array = np.array(score_list)
     selected_topicID = score_array.argsort()[-1:][::-1][0]
     return score_array, topics[selected_topicID]
@@ -99,7 +102,8 @@ test_queries = [["feelings", "emotions"],
 for test_query in test_queries:
     print(query_langmodel(test_query))
 
-## this is really not accurate, might be due to the uneven number of songs for each topic:
+## this does not work leh, super inaccurate, every query is under the "feelings" category, idk why also
+## when i try to make the docs all the same length at 500 songs, the scores for the topics become all the same
 '''
 sadness       6096
 violence      5710

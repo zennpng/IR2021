@@ -151,7 +151,7 @@ lyrics_list = musicdf["lyrics"].tolist()
 for lyric in lyrics_list:
     global_lyrics_vocab += lyric.split()
 global_lyrics_vocab = list(set(global_lyrics_vocab))
-print(len(global_lyrics_vocab))
+#print(len(global_lyrics_vocab))
 
 # pickle it into a txt file
 #with open("lyrics_vocab.txt", "wb") as fp:   
