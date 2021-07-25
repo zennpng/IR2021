@@ -5,7 +5,7 @@ import random
 #find gpu otherwise use cpu
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-# load and split the data
+#load and split the data
 data = pd.read_csv("LTRdata.tsv", sep="\t")
 data.head()
 
@@ -35,12 +35,12 @@ counter = Counter()
 for (qry, doc) in train_dataset:
   counter.update(tokenizer(doc))
 
-print('Counts:')
-print('Information:', counter['information'], 'School:', counter['school'],'\n')
+#print('Counts:')
+#print('Information:', counter['information'], 'School:', counter['school'],'\n')
 
 #define vocab
 vocab = torchtext.vocab.Vocab(counter, max_size=10000,  specials=('<pad>', '<unk>'), specials_first=True)
-print("\nVocab size:",len(vocab))
+#print("\nVocab size:",len(vocab))
 
 
 # Dataloader
@@ -117,7 +117,7 @@ class Ranking_model(nn.Module):
                                       padding_idx=vocab.stoi['<pad>'])
 
         #defining the LSTM encoder 
-        self.encoder = torch.nn.LSTM(input_size=50, hidden_size=50, num_layers=2, batch_first=True)
+        self.encoder = torch.nn.LSTM(input_size=50, hidden_size=50, batch_first=True)
 
         #feedforward layer
         self.nn_layer1 = nn.Linear(in_features=50*2, out_features=1)
