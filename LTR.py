@@ -1,3 +1,4 @@
+import os.path
 import pandas as pd 
 import torch
 import random
@@ -6,7 +7,7 @@ import random
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 #load and split the data
-data = pd.read_csv("LTRdata.tsv", sep="\t")
+data = pd.read_csv("LTR_training_data.csv")
 data.head()
 
 queries = data['context'].values.tolist()
@@ -35,9 +36,6 @@ counter = Counter()
 for (qry, doc) in train_dataset:
   counter.update(tokenizer(doc))
 
-#print('Counts:')
-#print('Information:', counter['information'], 'School:', counter['school'],'\n')
-
 #define vocab
 vocab = torchtext.vocab.Vocab(counter, max_size=10000,  specials=('<pad>', '<unk>'), specials_first=True)
 #print("\nVocab size:",len(vocab))
@@ -47,8 +45,8 @@ vocab = torchtext.vocab.Vocab(counter, max_size=10000,  specials=('<pad>', '<unk
 from torch.utils.data import Dataset, DataLoader
 
 #defined maximum query and doc length
-max_doc_len = 50
-max_query_len = 200
+max_doc_len = 1572
+max_query_len = 46
 
 #tokenization function
 text_pipeline = lambda x: [vocab[token] for token in tokenizer(x)]
@@ -181,51 +179,54 @@ def rank_docs(qry, doc_list):
             print("query [{}] to doc [{}] matching score [{}]\n".format(qry, doc, score.detach().item()))
 
 
+if not os.path.exists("LTR_model.pth"):  # If model does not exist, train and save model
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5) #optimizer
+    num_epochs = 10 #epochs
 
-#Training and validation
-optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5) #optimizer
-num_epochs = 10 #epochs
+    for epoch in range(num_epochs):
+        print("-->Epoch:{}".format(epoch))
 
-for epoch in range(num_epochs):
-    print("-->Epoch:{}".format(epoch))
+        epoch_train_loss = 0.0
+        model.train()
+        for idx, (qry_tokens, pos_doc_tokens, neg_doc_tokens) in enumerate(train_dataloader):
 
-    epoch_train_loss = 0.0
-    model.train()
-    for idx, (qry_tokens, pos_doc_tokens, neg_doc_tokens) in enumerate(train_dataloader):
+            #flush the gradient values
+            optimizer.zero_grad()
 
-        #flush the gradient values
-        optimizer.zero_grad()
+            #calculate model output
+            diff = model(qry_tokens, pos_doc_tokens, neg_doc_tokens)
 
-        #calculate model output
-        diff = model(qry_tokens, pos_doc_tokens, neg_doc_tokens)
+            #pairwise loss 
+            loss = torch.mean(torch.log(1+torch.exp(-1.0*diff)))
 
-        #pairwise loss 
-        loss = torch.mean(torch.log(1+torch.exp(-1.0*diff)))
+            #backward pass
+            loss.backward() 
 
-        #backward pass
-        loss.backward() 
+            #weights update
+            optimizer.step()
 
-        #weights update
-        optimizer.step()
+            #average train loss
+            epoch_train_loss += loss.cpu().item()*BATCH_SIZE
 
-        #average train loss
-        epoch_train_loss += loss.cpu().item()*BATCH_SIZE
+            print("Batch {}/{}, avg. train loss is {}".format(idx, len(train_dataloader), epoch_train_loss/(idx+1)), end='\r')
 
-        print("Batch {}/{}, avg. train loss is {}".format(idx, len(train_dataloader), epoch_train_loss/(idx+1)), end='\r')
+    torch.save(model, "LTR_model.pth")
 
 
-    #validation
+else:  # else, validate (do ranking)
+    model = torch.load("LTR_model.pth")
+
     epoch_val_loss = 0.0
     model.eval()
-    with torch.no_grad(): #weights should not update
+    with torch.no_grad():  # weights should not update
         for idx, (qry_tokens, pos_doc_tokens, neg_doc_tokens) in enumerate(valid_dataloader):
 
             #formward pass
             diff = model(qry_tokens, pos_doc_tokens, neg_doc_tokens) 
 
-            epoch_val_loss += torch.mean(torch.log(1+torch.exp(-1.0*diff))) #same loss as in training
+            epoch_val_loss += torch.mean(torch.log(1+torch.exp(-1.0*diff)))  # same loss as in training
 
-        print("\nval loss:{}".format(epoch_val_loss))
+        #print("\nval loss:{}".format(epoch_val_loss))
 
         qry = "we study at the university"
         doc1 = "the school has a good student to teacher ratio"
