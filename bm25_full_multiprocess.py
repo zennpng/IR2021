@@ -5,13 +5,10 @@ import math
 import ast
 import multiprocessing as mp
 
-def _score(query, doc_id, docs, index, k1=1.5, b=0.75):
+def _score(query, doc_id, docs,avg_doc_len, index, k1=1.5, b=0.75):
         score = 0.0
         corpus_size = 28372
-        avg_doc_len = 0 
-        for d in docs:
-            avg_doc_len += len(d)
-        avg_doc_len = avg_doc_len/len(docs)
+        
         for term in query:
             if term not in index.keys():
                 continue
@@ -25,13 +22,10 @@ def _score(query, doc_id, docs, index, k1=1.5, b=0.75):
             score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
         return score
 
-def _updatedScore(relevant_retrievedDocs,vr, query, doc_id, docs, index, k1=1.5, b=0.75):
+def _updatedScore(relevant_retrievedDocs,vr, query, doc_id, docs, avg_doc_len, index, k1=1.5, b=0.75):
             score = 0.0
             corpus_size = 28372
-            avg_doc_len = 0 
-            for d in docs:
-                avg_doc_len += len(d)
-            avg_doc_len = avg_doc_len/len(docs)
+            
             for term in query:
                 if term not in index.keys():
                     continue
@@ -58,9 +52,12 @@ def bm25(query, n=5):
 
     music_df = pd.read_csv("tcc_ceds_music.csv")
 
-    corpus = [] 
+    corpus = []
+    avg_doc_len = 0 
     for lyric in music_df['lyrics']:
         corpus.append(lyric)
+        avg_doc_len += len(lyric)
+    avg_doc_len = avg_doc_len/len(corpus)
 
     doc_id_list = list(range(1,28373))
 
@@ -71,7 +68,7 @@ def bm25(query, n=5):
     # Step 2: `pool.starmap` the `_scores`
     # https://stackoverflow.com/questions/57354700/starmap-combined-with-tqdm
     # can play with additional chunksize argument to see if it processes faster, use 28373/8(no. of processors)
-    scores = pool.starmap(_score, tqdm([(query, doc_id, corpus, indexes) for doc_id in range(1,28373)]))
+    scores = pool.starmap(_score, tqdm([(query, doc_id, corpus,avg_doc_len, indexes) for doc_id in range(1,28373)]))
 
     # Step 3: Don't forget to close
     pool.close()
@@ -95,7 +92,7 @@ def bm25(query, n=5):
 
         updatedScores = []
         for doc_id in tqdm(range(1,28373)):
-            updatedScores.append(_updatedScore(query, doc_id, corpus, indexes))
+            updatedScores.append(_updatedScore(query, doc_id, corpus,avg_doc_len, indexes))
 
         updatedSorted_scores = sorted(updatedScores, reverse=True)
         updatedSorted_docsID = [x for _, x in sorted(zip(updatedScores, doc_id_list), reverse=True)]
