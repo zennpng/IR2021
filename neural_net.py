@@ -84,9 +84,9 @@ if __name__ == '__main__':
     import gensim.downloader as api
     
     # try different word2vec models
-    wv = api.load('word2vec-google-news-300')
+    # wv = api.load('word2vec-google-news-300')
     # wv = api.load('glove-wiki-gigaword-300')
-    # wv = api.load('glove-twitter-200') # note to change line 113, line 158-159
+    wv = api.load('glove-twitter-200') # note to change line 113, line 159-160
 
     for row in range(len(traindf)):
         # find column(s) corresponding to this query
@@ -109,8 +109,8 @@ if __name__ == '__main__':
         expandedQuery = query_preprocessing.query_expansion(tokenQuery)
 
         # vectorise the query
-        q_vec = np.zeros(300)
-        # q_vec = np.zeros(200)
+        # q_vec = np.zeros(300)
+        q_vec = np.zeros(200)
         for term in expandedQuery:
             if term in wv:
                 q_vec += wv[term]
@@ -156,8 +156,8 @@ if __name__ == '__main__':
             super(NeuralNetwork, self).__init__()
             # self.flatten = nn.Flatten()
             self.layer_stack = nn.Sequential(
-                nn.Linear(300, 100),
-                # nn.Linear(200, 100),
+                # nn.Linear(300, 100),
+                nn.Linear(200, 100),
                 nn.Sigmoid(),
                 nn.Linear(100, 100),
                 nn.Sigmoid(),

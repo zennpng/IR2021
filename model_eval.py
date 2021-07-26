@@ -18,8 +18,8 @@ class NeuralNetwork(nn.Module):
             super(NeuralNetwork, self).__init__()
             # self.flatten = nn.Flatten()
             self.layer_stack = nn.Sequential(
-                nn.Linear(300, 100),
-                # nn.Linear(200, 100),
+                # nn.Linear(300, 100),
+                nn.Linear(200, 100),
                 nn.Sigmoid(),
                 nn.Linear(100, 100),
                 nn.Sigmoid(),
@@ -189,9 +189,9 @@ class Evaluator:
         
         # load relevant external models
         import gensim.downloader as api
-        wv = api.load('word2vec-google-news-300')
+        # wv = api.load('word2vec-google-news-300')
         # wv = api.load('glove-wiki-gigaword-300')
-        # wv = api.load('glove-twitter-200') # note to change line 21-22, line 232
+        wv = api.load('glove-twitter-200') # note to change line 21-22, line 232
 
         # load neural net model in case it is used
         nnmodel = torch.load('model.pth')
@@ -228,8 +228,8 @@ class Evaluator:
 
             elif model == 'neuralnet':
                 # vectorise the query
-                q_vec = np.zeros(300)
-                # q_vec = np.zeros(200)
+                # q_vec = np.zeros(300)
+                q_vec = np.zeros(200)
                 for term in expandedQuery:
                     if term in wv:
                         q_vec += wv[term]
