@@ -82,7 +82,11 @@ if __name__ == '__main__':
     # convert the queryStrings into vector form & convert the relevant cols to one-hot encoding
     # load pre-trained word2vec encoder
     import gensim.downloader as api
+    
+    # try different word2vec models
     wv = api.load('word2vec-google-news-300')
+    # wv = api.load('glove-wiki-gigaword-300')
+    # wv = api.load('glove-twitter-200') # note to change line 113, line 158-159
 
     for row in range(len(traindf)):
         # find column(s) corresponding to this query
@@ -105,7 +109,8 @@ if __name__ == '__main__':
         expandedQuery = query_preprocessing.query_expansion(tokenQuery)
 
         # vectorise the query
-        q_vec = 0
+        q_vec = np.zeros(300)
+        # q_vec = np.zeros(200)
         for term in expandedQuery:
             if term in wv:
                 q_vec += wv[term]
@@ -152,6 +157,7 @@ if __name__ == '__main__':
             # self.flatten = nn.Flatten()
             self.layer_stack = nn.Sequential(
                 nn.Linear(300, 100),
+                # nn.Linear(200, 100),
                 nn.Sigmoid(),
                 nn.Linear(100, 100),
                 nn.Sigmoid(),
@@ -177,7 +183,7 @@ if __name__ == '__main__':
         size = len(dataloader.dataset)
         for batch, (X,y) in enumerate(dataloader):
             # compute prediction and loss
-            pred = model(X)
+            pred = model(X.float())
             loss = loss_fn(pred, y)
 
             # backpropagation
