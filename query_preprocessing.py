@@ -54,7 +54,8 @@ def query_expansion(query_list):
     # get word synonyms
     expansion = PyDictionary(query_list).getSynonyms()
     for word_expanded in expansion:
-        query_list += word_expanded[next(iter(word_expanded))]
+        if word_expanded != None:
+            query_list += word_expanded[next(iter(word_expanded))]
 
     # remove phrases and words which are not part of the global lyrics pool of words
     query_list = [ x for x in query_list if " " not in x and x in lyrics_vocab ]
