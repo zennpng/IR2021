@@ -201,7 +201,7 @@ if __name__ == '__main__':
     print("Done!")
 
     ########## Save Model ##########
-    torch.save(model, 'model.pth')
+    torch.save(model, 'nn_model.pth')
 
     ########## Load Model ##########
     # model = torch.load('model.pth')

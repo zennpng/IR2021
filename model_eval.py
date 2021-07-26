@@ -195,7 +195,7 @@ class Evaluator:
         wv = api.load('glove-twitter-200') # note to change line 21-22, line 232
 
         # load neural net model in case it is used
-        nnmodel = torch.load('model.pth')
+        nnmodel = torch.load('nn_model.pth')
 
         # create and convert predictions column in self.predictset to dtype 'object'
         self.predictset['predictions'] = ''
