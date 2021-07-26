@@ -245,7 +245,7 @@ class IndexConstructor:
                 # retrieve the id and attribute values for this song
                 doc_id = self.dataset.loc[row,'doc_id']
 
-                # calculate the document vector by summing weighted attr vectors
+                # calculate the document vector by taking attr vectors
                 doc_vec = self.dataset.iloc[row, 7:29]
 
                 # update index
