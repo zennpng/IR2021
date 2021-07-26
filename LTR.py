@@ -1,7 +1,11 @@
 import os.path
+from tqdm import tqdm
 import pandas as pd 
+import numpy as np
 import torch
 import random
+import query_preprocessing
+from dataset_preprocessing import musicdf
 
 #find gpu otherwise use cpu
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -166,17 +170,24 @@ for word in vocab.stoi.keys():
         word_vec = glove_50dim[word]
         model.embedding.weight.data[vocab.stoi[word]] = torch.tensor(word_vec)
 
-#function to score documents based on a query
-#to be used for a trained model
-def rank_docs(qry, doc_list):
-    for doc in doc_list:
+#function to score and rank song documents based on the query
+def rank_docs(qry, doc_list, n=5):
+    score_list = []
+    for doc in tqdm(doc_list):
         model.eval()
         with torch.no_grad():
             qry_ = torch.tensor([query_padding_pipeline(text_pipeline(qry))], dtype=torch.int64).to(device)
             doc_ = torch.tensor([doc_padding_pipeline(text_pipeline(doc))], dtype=torch.int64).to(device)
             score = model(qry_, doc_, doc_*0)
-            print(score)
-            print("query [{}] to doc [{}] matching score [{}]\n".format(qry, doc, score.detach().item()))
+            score_list.append(score.detach().item())
+            #print("query [{}] to doc [{}] matching score [{}]\n".format(qry, doc, score.detach().item()))
+
+    score_array = np.array(score_list)
+    selected_docsID = list(score_array.argsort()[-n:][::-1])
+    recommended_song_infos = []
+    for docID in selected_docsID:
+        recommended_song_infos.append(musicdf['artist_name'][docID-1] + " - " + musicdf['track_name'][docID-1] + ", " + str(musicdf['release_date'][docID-1]) + " " + musicdf['genre'][docID-1])
+    return selected_docsID, recommended_song_infos
 
 
 if not os.path.exists("LTR_model.pth"):  # If model does not exist, train and save model
@@ -226,12 +237,16 @@ else:  # else, validate (do ranking)
 
             epoch_val_loss += torch.mean(torch.log(1+torch.exp(-1.0*diff)))  # same loss as in training
 
-        #print("\nval loss:{}".format(epoch_val_loss))
+        print("\nval loss:{}".format(epoch_val_loss))
 
-        qry = "we study at the university"
-        doc1 = "the school has a good student to teacher ratio"
-        doc2 = "we have has many students"
-        doc3 = "singapore has a decent climate"
+        qry = "high tempo upbeat music"
+        tokenQuery = query_preprocessing.process_query(qry)
+        expandedQuery = query_preprocessing.query_expansion(tokenQuery)
+        qry_expanded = " ".join(expandedQuery)
 
-        rank_docs(qry, [doc1, doc2, doc3])
+        doc_list = musicdf["lyrics"].tolist() #[-1000:]
+
+        selected_docsID, recommended_song_infos = rank_docs(qry_expanded, doc_list, 5)
+        print(selected_docsID)
+        print(recommended_song_infos)
 
