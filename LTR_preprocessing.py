@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from dataset_preprocessing import musicdf
 
 LTR_data = []
@@ -16,4 +17,10 @@ for index, row in eval_df.iterrows():
 LTR_training_data = pd.DataFrame(LTR_data, columns=['context', 'response'])
 #print(LTR_training_data)
 
+#get max length of context and response
+measurer = np.vectorize(len)
+print(measurer(LTR_training_data.values.astype(str)).max(axis=0))
+
 LTR_training_data.to_csv("LTR_training_data.csv", index=False)
+
+
