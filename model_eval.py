@@ -9,6 +9,7 @@ import VSM1_1 as vsm
 import query_preprocessing
 import bm25_full_multiprocess as bm
 import neural_net
+import LangModel as LM
 
 import torch
 from torch import nn
@@ -242,6 +243,10 @@ class Evaluator:
                 recommended_song_infos,sorted_ID_final, prod_list_final = neural_net.type_of_nn(pred, method = "dotprod", nn_type = 1, n=28373)
                 self.predictset.at[row,'predictions'] = sorted_ID_final
 
+            elif model == 'LM':
+                selected_docsID, recommended_song_infos = LM.langmodel(expandedQuery, 28373)
+                self.predictset.at[row,'predictions'] = selected_docsID
+
         
         # output predictions
         filename = model + '_predictions.csv'
@@ -336,7 +341,7 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    model_eval.make_predictions('neuralnet')
+    # model_eval.make_predictions('neuralnet')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('neuralnet',30)
 
     print("###################################")
@@ -346,4 +351,17 @@ if __name__ == '__main__':
     print("Mean NDCG: ", m_ndcg)
     print("Mean Reciprocal Rank: ", m_rr)
     print("-----------------------------------")
-    print('\n')    
+    print('\n')
+
+    model_eval = Evaluator('test_dataset.csv')
+    model_eval.make_predictions('LM')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
+
+    print("###################################")
+    print("#   Performance Metric for NN   #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
+    print('\n')       
