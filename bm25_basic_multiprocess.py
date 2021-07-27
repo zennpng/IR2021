@@ -5,24 +5,24 @@ import math
 import multiprocessing as mp 
 
 def _score(query, doc_id, docs,avg_doc_len, index, k1=1.5, b=0.75):
-        score = 0.0
-        corpus_size = 28372
-        # avg_doc_len = 0 
-        # for d in docs:
-        #     avg_doc_len += len(d)
-        # avg_doc_len = avg_doc_len/len(docs)
-        for term in query:
-            if term not in index.keys():
-                continue
-            df = index[term]["doc_freq"] 
-            idf = round(math.log((corpus_size)/(df)),2)
-            tf = 0 
-            for tfset in index[term]["doc_list"]:
-                if tfset[0] == doc_id:
-                    tf = tfset[1]
-            doc_len = len(docs[doc_id-1])
-            score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
-        return score
+    score = 0.0
+    corpus_size = 28372
+    # avg_doc_len = 0 
+    # for d in docs:
+    #     avg_doc_len += len(d)
+    # avg_doc_len = avg_doc_len/len(docs)
+    for term in query:
+        if term not in index.keys():
+            continue
+        df = index[term]["doc_freq"] 
+        idf = round(math.log((corpus_size)/(df)),2)
+        tf = 0 
+        for tfset in index[term]["doc_list"]:
+            if tfset[0] == doc_id:
+                tf = tfset[1]
+        doc_len = len(docs[doc_id-1])
+        score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
+    return score
 
 ## BM25 (Basic Version with multi processing)
 def bm25_basic(query, n=5):
