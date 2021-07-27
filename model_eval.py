@@ -328,7 +328,7 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    # model_eval.make_predictions('bm25_full')
+    #model_eval.make_predictions('bm25_full')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_full',30)
 
     print("###################################")
@@ -354,11 +354,11 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    model_eval.make_predictions('LM')
+    # model_eval.make_predictions('LM')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
 
     print("###################################")
-    print("#   Performance Metric for NN   #")
+    print("#   Performance Metric for LM   #")
     print("###################################")
     print("Mean Average Precision: ", m_avg_p)
     print("Mean NDCG: ", m_ndcg)
