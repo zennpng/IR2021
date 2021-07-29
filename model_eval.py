@@ -190,9 +190,9 @@ class Evaluator:
         
         # load relevant external models
         import gensim.downloader as api
-        # wv = api.load('word2vec-google-news-300') # note to reconstruct index for vsm
-        # wv = api.load('glove-wiki-gigaword-300') # note to reconstruct index for vsm
-        wv = api.load('glove-twitter-200') # note to change line 21-22, line 232 for NN ; reconstruct index for vsm
+        wv1 = api.load('word2vec-google-news-300') # for vsm
+        # wv1 = api.load('glove-wiki-gigaword-300') # alternative for vsm
+        wv2 = api.load('glove-twitter-200') # note to change line 22-23, line 232 for NN
 
         # load neural net model in case it is used
         nnmodel = torch.load('nn_model.pth')
@@ -220,7 +220,7 @@ class Evaluator:
                 
             
             elif model == 'vsm_1_1':
-                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(wv, expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
+                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(wv1, expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
                 self.predictset.at[row,'predictions'] = sorted_ID_final
 
             elif model == 'bm25_full':
@@ -232,8 +232,8 @@ class Evaluator:
                 # q_vec = np.zeros(300)
                 q_vec = np.zeros(200)
                 for term in expandedQuery:
-                    if term in wv:
-                        q_vec += wv[term]
+                    if term in wv2:
+                        q_vec += wv2[term]
                 # pass query vector through neural net to get scores of each class attribute
                 q_tensor = torch.tensor(q_vec)
                 pred = nnmodel(q_tensor.float())
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    model_eval.make_predictions('vsm_1_1')
+    # model_eval.make_predictions('vsm_1_1')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('vsm_1_1',30)
 
     print("###################################")
@@ -353,15 +353,15 @@ if __name__ == '__main__':
     print("-----------------------------------")
     print('\n')
 
-    model_eval = Evaluator('test_dataset.csv')
-    # model_eval.make_predictions('LM')
-    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
+    # model_eval = Evaluator('test_dataset.csv')
+    # # model_eval.make_predictions('LM')
+    # m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
 
-    print("###################################")
-    print("#   Performance Metric for LM   #")
-    print("###################################")
-    print("Mean Average Precision: ", m_avg_p)
-    print("Mean NDCG: ", m_ndcg)
-    print("Mean Reciprocal Rank: ", m_rr)
-    print("-----------------------------------")
-    print('\n')       
+    # print("###################################")
+    # print("#   Performance Metric for LM   #")
+    # print("###################################")
+    # print("Mean Average Precision: ", m_avg_p)
+    # print("Mean NDCG: ", m_ndcg)
+    # print("Mean Reciprocal Rank: ", m_rr)
+    # print("-----------------------------------")
+    # print('\n')       
