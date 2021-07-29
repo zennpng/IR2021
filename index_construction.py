@@ -70,10 +70,10 @@ class IndexConstructor:
         # ref: https://radimrehurek.com/gensim/auto_examples/tutorials/run_word2vec.html
         # load pre-trained word2vec encoder
         import gensim.downloader as api
-        # wv = api.load('word2vec-google-news-300')
+        wv = api.load('word2vec-google-news-300')
         # wv = api.load('glove-wiki-gigaword-300')
-        wv = api.load('glove-twitter-200')
-        vector_len = 200
+        # wv = api.load('glove-twitter-200')
+        vector_len = 300
 
         # calculate the vectors of each attribute in the dataset
         attr_vec = {}
