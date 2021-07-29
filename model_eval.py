@@ -190,9 +190,9 @@ class Evaluator:
         
         # load relevant external models
         import gensim.downloader as api
-        # wv = api.load('word2vec-google-news-300')
-        # wv = api.load('glove-wiki-gigaword-300')
-        wv = api.load('glove-twitter-200') # note to change line 21-22, line 232
+        # wv = api.load('word2vec-google-news-300') # note to reconstruct index for vsm
+        # wv = api.load('glove-wiki-gigaword-300') # note to reconstruct index for vsm
+        wv = api.load('glove-twitter-200') # note to change line 21-22, line 232 for NN ; reconstruct index for vsm
 
         # load neural net model in case it is used
         nnmodel = torch.load('nn_model.pth')
@@ -220,7 +220,7 @@ class Evaluator:
                 
             
             elif model == 'vsm_1_1':
-                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
+                recommended_song_infos,sorted_ID_final, prod_list_final = vsm.type_of_vsm(wv, expandedQuery, method = "dotprod", vsm_type = 1, n=28373)
                 self.predictset.at[row,'predictions'] = sorted_ID_final
 
             elif model == 'bm25_full':
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    # model_eval.make_predictions('vsm_1_1')
+    model_eval.make_predictions('vsm_1_1')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('vsm_1_1',30)
 
     print("###################################")

@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 from tqdm import tqdm
+import numpy as np
 
 class IndexConstructor:
 
@@ -69,33 +70,149 @@ class IndexConstructor:
         # ref: https://radimrehurek.com/gensim/auto_examples/tutorials/run_word2vec.html
         # load pre-trained word2vec encoder
         import gensim.downloader as api
-        wv = api.load('word2vec-google-news-300')
+        # wv = api.load('word2vec-google-news-300')
+        # wv = api.load('glove-wiki-gigaword-300')
+        wv = api.load('glove-twitter-200')
+        vector_len = 200
 
         # calculate the vectors of each attribute in the dataset
         attr_vec = {}
-
-        attr_vec['dating'] = wv['dating']
-        attr_vec['violence'] = wv['violence']
-        attr_vec['worldlife'] = wv['world'] + wv['life']
-        attr_vec['nighttime'] = wv['night'] + wv['time']
-        attr_vec['shaketheaudience'] = wv['shake'] + wv['audience']
-        attr_vec['familygospel'] = wv['family'] + wv['gospel']
-        attr_vec['romantic'] = wv['romantic']
-        attr_vec['communication'] = wv['communication']
-        attr_vec['obscene'] = wv['obscene']
-        attr_vec['music'] = wv['music']
-        attr_vec['movementplaces'] = wv['movement'] + wv['places']
-        attr_vec['lightvisual'] = wv['light'] + wv['visual']
-        attr_vec['familyspiritual'] = wv['family'] + wv['spiritual']
-        attr_vec['likegirls'] = wv['like'] + wv['girls']
-        attr_vec['sadness'] = wv['sadness']
-        attr_vec['feelings'] = wv['feelings']
-        attr_vec['danceability'] = wv['danceability']
-        attr_vec['loudness'] = wv['loudness']
-        attr_vec['acousticness'] = wv['acoustic']
-        attr_vec['instrumentalness'] = wv['instrumental']
-        attr_vec['valence'] = wv['valence']
-        attr_vec['energy'] = wv['energy']
+        try:
+            attr_vec['dating'] = wv['dating']
+        except:
+            attr_vec['dating'] = np.zeros(vector_len)
+        try:
+            attr_vec['violence'] = wv['violence']
+        except:
+            attr_vec['violence'] = np.zeros(vector_len)
+        try:
+            attr_vec['worldlife'] = wv['world'] + wv['life']
+        except:
+            try:
+                attr_vec['worldlife'] = wv['world']
+            except:
+                try:
+                    attr_vec['worldlife'] = wv['life']
+                except:
+                    attr_vec['worldlife'] = np.zeros(vector_len)
+        try:
+            attr_vec['nighttime'] = wv['night'] + wv['time']
+        except:
+            try:
+                attr_vec['nighttime'] = wv['night']
+            except:
+                try:
+                    attr_vec['nighttime'] = wv['time']
+                except:
+                    attr_vec['nighttime'] = np.zeros(vector_len)
+        try:
+            attr_vec['shaketheaudience'] = wv['shake'] + wv['audience']
+        except:
+            try:
+                attr_vec['shaketheaudience'] = wv['shake']
+            except:
+                try:
+                    attr_vec['shaketheaudience'] = wv['audience']
+                except:
+                    attr_vec['shaketheaudience'] = np.zeros(vector_len)
+        try:
+            attr_vec['familygospel'] = wv['family'] + wv['gospel']
+        except:
+            try:
+                attr_vec['familygospel'] = wv['family']
+            except:
+                try:
+                    attr_vec['familygospel'] = wv['gospel']
+                except:
+                    attr_vec['familygospel'] = np.zeros(vector_len)
+        try:
+            attr_vec['romantic'] = wv['romantic']
+        except:
+            attr_vec['romantic'] = np.zeros(vector_len)
+        try:
+            attr_vec['communication'] = wv['communication']
+        except:
+            attr_vec['communication'] = np.zeros(vector_len)
+        try:
+            attr_vec['obscene'] = wv['obscene']
+        except:
+            attr_vec['obscene'] = np.zeros(vector_len)
+        try:
+            attr_vec['music'] = wv['music']
+        except:
+            attr_vec['music'] = np.zeros(vector_len)
+        try:
+            attr_vec['movementplaces'] = wv['movement'] + wv['places']
+        except:
+            try:
+                attr_vec['movementplaces'] = wv['movement']
+            except:
+                try:
+                    attr_vec['movementplaces'] = wv['places']
+                except:
+                    attr_vec['movementplaces'] = np.zeros(vector_len)
+        try:
+            attr_vec['lightvisual'] = wv['light'] + wv['visual']
+        except:
+            try:
+                attr_vec['lightvisual'] = wv['light']
+            except:
+                try:
+                    attr_vec['lightvisual'] = wv['visual']
+                except:
+                    attr_vec['lightvisual'] = np.zeros(vector_len)
+        try:
+            attr_vec['familyspiritual'] = wv['family'] + wv['spiritual']
+        except:
+            try:
+                attr_vec['familyspiritual'] = wv['family']
+            except:
+                try:
+                    attr_vec['familyspiritual'] = wv['spiritual']
+                except:
+                    attr_vec['familyspiritual'] = np.zeros(vector_len)
+        try:
+            attr_vec['likegirls'] = wv['like'] + wv['girls']
+        except:
+            try:
+                attr_vec['likegirls'] = wv['like']
+            except:
+                try:
+                    attr_vec['likegirls'] = wv['girls']
+                except:
+                    attr_vec['likegirls'] = np.zeros(vector_len)
+        try:
+            attr_vec['sadness'] = wv['sadness']
+        except:
+            attr_vec['sadness'] = np.zeros(vector_len)
+        try:
+            attr_vec['feelings'] = wv['feelings']
+        except:
+            attr_vec['feelings'] = np.zeros(vector_len)
+        try:
+            attr_vec['danceability'] = wv['danceability']
+        except:
+            attr_vec['danceability'] = np.zeros(vector_len)
+        try:
+            attr_vec['loudness'] = wv['loudness']
+        except:
+            attr_vec['loudness'] = np.zeros(vector_len)
+        try:
+            attr_vec['acousticness'] = wv['acoustic']
+        except:
+            attr_vec['acousticness'] = np.zeros(vector_len)
+        try:
+            attr_vec['instrumentalness'] = wv['instrumental']
+        except:
+            attr_vec['instrumentalness'] = np.zeros(vector_len)
+        try:
+            attr_vec['valence'] = wv['valence']
+        except:
+            attr_vec['valence'] = np.zeros(vector_len)
+        try:
+            attr_vec['energy'] = wv['energy']
+        except:
+            attr_vec['energy'] = np.zeros(vector_len)
 
         return attr_vec
 
@@ -271,16 +388,16 @@ class IndexConstructor:
 
 ### SCRIPT ###
 ### BM25 ###
-BM25_indexer = IndexConstructor('tcc_ceds_music.csv')
-print("Initialized Index Constructor for BM25")
-print("Constructing index...")
+# BM25_indexer = IndexConstructor('tcc_ceds_music.csv')
+# print("Initialized Index Constructor for BM25")
+# print("Constructing index...")
 
-BM25_indexer.construct_index('BM25')
-print("Constructed index for BM25")
+# BM25_indexer.construct_index('BM25')
+# print("Constructed index for BM25")
 
-BM25_indexer.output('BM25_index.txt')
-print("BM25 index saved successfully in the format: ", "{'word1':{'doc_list':[(d_i,tf_i),...], 'doc_freq': int}, ...}")
-print(len(BM25_indexer.index.keys()), 'words')
+# BM25_indexer.output('BM25_index.txt')
+# print("BM25 index saved successfully in the format: ", "{'word1':{'doc_list':[(d_i,tf_i),...], 'doc_freq': int}, ...}")
+# print(len(BM25_indexer.index.keys()), 'words')
 
 ### VSM 1.1 ###
 VSM_indexer = IndexConstructor('tcc_ceds_music.csv')
@@ -294,26 +411,26 @@ VSM_indexer.output('VSM1_1_index.txt')
 print("VSM 1_1 index saved successfully in the format: ", "{'doc_id': doc_vector,...}")
 print(len(VSM_indexer.index.keys()), 'documents')
 
-### VSM 1.2 ###
-VSM_indexer = IndexConstructor('tcc_ceds_music.csv')
-print("Initialized Index Constructor for VSM 1_2")
-print("Constructing index...")
+# ### VSM 1.2 ###
+# VSM_indexer = IndexConstructor('tcc_ceds_music.csv')
+# print("Initialized Index Constructor for VSM 1_2")
+# print("Constructing index...")
 
-VSM_indexer.construct_index('VSM1_2')
-print("Constructed index for VSM 1_2")
+# VSM_indexer.construct_index('VSM1_2')
+# print("Constructed index for VSM 1_2")
 
-VSM_indexer.output('VSM1_2_index.txt')
-print("VSM 1_2 index saved successfully in the format: ", "{'doc_id': [doc_vector1,doc_vector2], ...}")
-print(len(VSM_indexer.index.keys()), 'documents')
+# VSM_indexer.output('VSM1_2_index.txt')
+# print("VSM 1_2 index saved successfully in the format: ", "{'doc_id': [doc_vector1,doc_vector2], ...}")
+# print(len(VSM_indexer.index.keys()), 'documents')
 
-### Neural Net ###
-NN_indexer = IndexConstructor('tcc_ceds_music.csv')
-print("Initialized Index Constructor for NN")
-print("Constructing index...")
+# ### Neural Net ###
+# NN_indexer = IndexConstructor('tcc_ceds_music.csv')
+# print("Initialized Index Constructor for NN")
+# print("Constructing index...")
 
-NN_indexer.construct_index('neuralnet')
-print("Constructed index for NN")
+# NN_indexer.construct_index('neuralnet')
+# print("Constructed index for NN")
 
-NN_indexer.output('NN_index.txt')
-print("NN index saved successfully in the format: ", "{'doc_id': doc_vector, ...}")
-print(len(NN_indexer.index.keys()), 'documents')
+# NN_indexer.output('NN_index.txt')
+# print("NN index saved successfully in the format: ", "{'doc_id': doc_vector, ...}")
+# print(len(NN_indexer.index.keys()), 'documents')
