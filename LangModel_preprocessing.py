@@ -6,4 +6,3 @@ lyrics_list = dataset_preprocessing.musicdf["lyrics"].tolist()
 for index in range(len(lyrics_list)):
     lyrics_list[index] = lyrics_list[index].split(" ")
 
-#print(lyrics_list[0:2])

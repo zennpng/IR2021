@@ -24,7 +24,7 @@ def _score(query, doc_id, docs,avg_doc_len, index, k1=1.5, b=0.75):
         score += idf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
     return score
 
-## BM25 (Basic Version with multi processing)
+## BM25 (Basic Version with multiprocessing)
 def bm25_basic(query, n=5):
     
     # load index for bm25

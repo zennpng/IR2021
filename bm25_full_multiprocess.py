@@ -45,7 +45,7 @@ def _updatedScore(relevant_retrievedDocs,vr, query, doc_id, docs, avg_doc_len, i
         score += idf_rf*((k1+1)*tf)/(k1*((1-b)+b*(doc_len/avg_doc_len))+tf)
     return score
 
-## BM25 Full Version (Basic + RF)
+## BM25 Full Version (with Relevance Feedback)
 def bm25(query, n=5):
     with open('BM25_index.txt','rb') as handle:
         indexes = pickle.loads(handle.read())
@@ -78,9 +78,10 @@ def bm25(query, n=5):
 
     # get recommended song infos
     selected_docsID = sorted_docsID[0:n]
+    
     file = open("bm25_relevant.txt", "r")
-    old_relevant = ast.literal_eval(file.read())
-    new_relevant = list(set(old_relevant + selected_docsID))
+    old_relevant = ast.literal_eval(file.read())  # get existing relevant document pool
+    new_relevant = list(set(old_relevant + selected_docsID))  # update document pool 
     with open('bm25_relevant.txt', 'w') as f:
         f.write(str(new_relevant))
 

@@ -151,9 +151,7 @@ def type_of_vsm_old(query, vsm_type=1, method="cosine", n=5):
                 
         
     return(recommended_song_infos,sorted_ID_final[:n], prod_list_final)        
-#new_query = query_preprocessing.query_expansion(query)               
-#song_recc, sortID, prodlist= type_of_vsm(new_query, method = "dotprod", vsm_type = 1)    
-#print(song_recc)      
+     
         
     
     

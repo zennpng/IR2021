@@ -102,8 +102,8 @@ test_queries = [["feelings", "emotions"],
 for test_query in test_queries:
     print(query_langmodel(test_query))
 
-## this does not work leh, super inaccurate, every query is under the "feelings" category, idk why also
-## when i try to make the docs all the same length at 500 songs, the scores for the topics become all the same
+## It appears that this does not work; Every query gets categorized under the "feelings" category, reasons are unknown
+## When the same number of songs are sampled from each of the categories, the scores for each topic become the same, reasons are unknown
 '''
 sadness       6096
 violence      5710
