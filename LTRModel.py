@@ -171,16 +171,17 @@ for word in vocab.stoi.keys():
         model.embedding.weight.data[vocab.stoi[word]] = torch.tensor(word_vec)
 
 #function to score and rank song documents based on the query
-def rank_docs(qry, doc_list, n=5):
+def rank_docs(qry, n=5):
     score_list = []
-    for doc in tqdm(doc_list):
+    model.eval()
+    with torch.no_grad():
+        qry_ = torch.tensor([query_padding_pipeline(text_pipeline(qry))], dtype=torch.int64).to(device)
+    for doc in tqdm(range(28372)):
         model.eval()
         with torch.no_grad():
-            qry_ = torch.tensor([query_padding_pipeline(text_pipeline(qry))], dtype=torch.int64).to(device)
-            doc_ = torch.tensor([doc_padding_pipeline(text_pipeline(doc))], dtype=torch.int64).to(device)
+            doc_ = torch.load("LTR_doctensor/doc_{}.pt".format(str(doc+1))).to(device)
             score = model(qry_, doc_, doc_*0)
             score_list.append(score.detach().item())
-            #print("query [{}] to doc [{}] matching score [{}]\n".format(qry, doc, score.detach().item()))
 
     score_array = np.array(score_list)
     selected_docsID = list(score_array.argsort()[-n:][::-1])
@@ -244,9 +245,15 @@ else:  # else, validate (do ranking)
         expandedQuery = query_preprocessing.query_expansion(tokenQuery)
         qry_expanded = " ".join(expandedQuery)
 
-        doc_list = musicdf["lyrics"].tolist() #[-1000:]
-
-        selected_docsID, recommended_song_infos = rank_docs(qry_expanded, doc_list, 5)
+        #! store the document tensors (run the code before before running the eval)
+        #doc_list = musicdf["lyrics"].tolist() 
+        #for doc in tqdm(range(len(doc_list))):
+        #    model.eval()
+        #    with torch.no_grad():
+        #        doc_ = torch.tensor([doc_padding_pipeline(text_pipeline(doc_list[doc]))], dtype=torch.int64)
+        #        torch.save(doc_, 'LTR_doctensor/doc_{}.pt'.format(str(doc+1)))
+        
+        selected_docsID, recommended_song_infos = rank_docs(qry_expanded, 5)
         print(selected_docsID)
         print(recommended_song_infos)
 
