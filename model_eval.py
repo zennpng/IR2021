@@ -4,9 +4,11 @@ import math
 import ast
 from tqdm import tqdm
 
+import query_preprocessing
+from dataset_preprocessing import musicdf
+
 import bm25_basic_multiprocess as bm_basic
 import VSM1_1 as vsm
-import query_preprocessing
 import bm25_full_multiprocess as bm
 import neural_net
 import LangModel as LM
@@ -188,13 +190,13 @@ class Evaluator:
     # main functions of this Evaluator class
     def make_predictions(self, model):
         
-        # load relevant external models
+        # # load relevant external models
         import gensim.downloader as api
         wv1 = api.load('word2vec-google-news-300') # for vsm
-        # wv1 = api.load('glove-wiki-gigaword-300') # alternative for vsm
+        # # wv1 = api.load('glove-wiki-gigaword-300') # alternative for vsm
         wv2 = api.load('glove-twitter-200') # note to change line 22-23, line 232 for NN
 
-        # load neural net model in case it is used
+        # # load neural net model in case it is used
         nnmodel = torch.load('nn_model.pth')
 
         # create and convert predictions column in self.predictset to dtype 'object'
@@ -244,7 +246,7 @@ class Evaluator:
                 self.predictset.at[row,'predictions'] = sorted_ID_final
 
             elif model == 'LM':
-                selected_docsID, recommended_song_infos = LM.langmodel(expandedQuery, 28373)
+                selected_docsID, recommended_song_infos = LM.langmodel(expandedQuery, 200)
                 self.predictset.at[row,'predictions'] = selected_docsID
 
         
@@ -301,18 +303,18 @@ class Evaluator:
 
 if __name__ == '__main__':
     ### SCRIPT ###
-    model_eval = Evaluator('test_dataset.csv')
-    # model_eval.make_predictions('bm25_basic')
-    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_basic',30)
+    # model_eval = Evaluator('test_dataset.csv')
+    # # model_eval.make_predictions('bm25_basic')
+    # m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_basic',30)
 
-    print("###################################")
-    print("#   Performance Metric for BM25   #")
-    print("###################################")
-    print("Mean Average Precision: ", m_avg_p)
-    print("Mean NDCG: ", m_ndcg)
-    print("Mean Reciprocal Rank: ", m_rr)
-    print("-----------------------------------")
-    print('\n')
+    # print("###################################")
+    # print("#   Performance Metric for BM25   #")
+    # print("###################################")
+    # print("Mean Average Precision: ", m_avg_p)
+    # print("Mean NDCG: ", m_ndcg)
+    # print("Mean Reciprocal Rank: ", m_rr)
+    # print("-----------------------------------")
+    # print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
     # model_eval.make_predictions('vsm_1_1')
@@ -328,7 +330,7 @@ if __name__ == '__main__':
     print('\n')
 
     model_eval = Evaluator('test_dataset.csv')
-    #model_eval.make_predictions('bm25_full')
+    # model_eval.make_predictions('bm25_full')
     m_avg_p, m_ndcg, m_rr = model_eval.evaluate('bm25_full',30)
 
     print("###################################")
@@ -353,15 +355,15 @@ if __name__ == '__main__':
     print("-----------------------------------")
     print('\n')
 
-    # model_eval = Evaluator('test_dataset.csv')
-    # # model_eval.make_predictions('LM')
-    # m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
+    model_eval = Evaluator('test_dataset.csv')
+    # model_eval.make_predictions('LM')
+    m_avg_p, m_ndcg, m_rr = model_eval.evaluate('LM',30)
 
-    # print("###################################")
-    # print("#   Performance Metric for LM   #")
-    # print("###################################")
-    # print("Mean Average Precision: ", m_avg_p)
-    # print("Mean NDCG: ", m_ndcg)
-    # print("Mean Reciprocal Rank: ", m_rr)
-    # print("-----------------------------------")
-    # print('\n')       
+    print("###################################")
+    print("#   Performance Metric for LM   #")
+    print("###################################")
+    print("Mean Average Precision: ", m_avg_p)
+    print("Mean NDCG: ", m_ndcg)
+    print("Mean Reciprocal Rank: ", m_rr)
+    print("-----------------------------------")
+    print('\n')      
