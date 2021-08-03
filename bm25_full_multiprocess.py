@@ -93,7 +93,7 @@ def bm25(query, n=5):
 
         updatedScores = []
         for doc_id in tqdm(range(1,28373)):
-            updatedScores.append(_updatedScore(query, doc_id, corpus,avg_doc_len, indexes))
+            updatedScores.append(_updatedScore(relevant_retrievedDocs,vr, query, doc_id, corpus,avg_doc_len, indexes))
 
         updatedSorted_scores = sorted(updatedScores, reverse=True)
         updatedSorted_docsID = [x for _, x in sorted(zip(updatedScores, doc_id_list), reverse=True)]
