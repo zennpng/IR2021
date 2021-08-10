@@ -11,7 +11,7 @@ def index():
 def recommendations():
     query = request.form.get("query")
     number = request.form.get("number")
-    recommendations = engine.generate_recommendations(query, number)
+    recommendations = engine.generate_recommendations(query, int(number))
     for song in range(len(recommendations)): 
         recommendations[song] = str(song+1) + ". " + recommendations[song]
     return render_template('recommendations.html', recommendations = recommendations)

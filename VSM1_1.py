@@ -1,13 +1,6 @@
-1# -*- coding: utf-8 -*-
-"""
-Created on Thu Jul  1 10:30:57 2021
-
-@author: teresa
-"""
 import pandas as pd
 from tqdm import tqdm
 import pickle
-import query_preprocessing
 import scipy as sp
 import numpy as np
 
@@ -18,7 +11,6 @@ import numpy as np
    #file=pickle.loads(handle.read())
    #print(file)
     
-
 #query: list of words after query expansion
 #method: to measure similairity
 
@@ -36,10 +28,7 @@ def type_of_vsm(wv, query, vsm_type=1, method="cosine", n=5):
             file=pickle.loads(handle.read())
         
 
-    def vsm(query, method, n, wv):
-        
-        # import gensim.downloader as api
-        # wv = api.load('word2vec-google-news-300')
+    def vsm(query, method, n, wv, file):
         word_vec_dict = {}
         query_vec = 0
         for i in range(len(query)):
@@ -48,11 +37,8 @@ def type_of_vsm(wv, query, vsm_type=1, method="cosine", n=5):
                 word_vec_dict[query[i]] = wv[query[i]]
                 query_vec = query_vec + word_vec_dict[query[i]]
 
-        
         doc_id_list = list(range(1,28373))
-        
-        
-        
+                
         if method == "cosine":
             sim_list = []
             for key, value in tqdm(file.items()):
@@ -78,16 +64,16 @@ def type_of_vsm(wv, query, vsm_type=1, method="cosine", n=5):
             #sort from highest to lowest value
             sorted_ID = [x for _, x in sorted(zip(prod_list, doc_id_list), reverse=True)]
             
-        return(sorted_ID[:n], prod_list[:n])   
+        return(sorted_ID[:n])   
     
-    sorted_ID_final, prod_list_final = vsm(query, method, n, wv)            
+    sorted_ID_final = vsm(query, method, n, wv, file)            
     recommended_song_infos = []
     for docID in sorted_ID_final[0:n]:
         recommended_song_infos.append(music_df['artist_name'][docID-1] + " - " + music_df['track_name'][docID-1] + ", " + str(music_df['release_date'][docID-1]) + " " + music_df['genre'][docID-1])
                 
-        
-    return(recommended_song_infos,sorted_ID_final[:n], prod_list_final)
-            
+    return(recommended_song_infos)
+
+'''  
 # old version
 def type_of_vsm_old(query, vsm_type=1, method="cosine", n=5):
     music_df = pd.read_csv("tcc_ceds_music.csv")
@@ -151,17 +137,4 @@ def type_of_vsm_old(query, vsm_type=1, method="cosine", n=5):
                 
         
     return(recommended_song_infos,sorted_ID_final[:n], prod_list_final)        
-    
-        
-    
-    
-    
-    
-
-       
-        
-        
-        
-
-
-    
+'''

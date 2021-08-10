@@ -1,8 +1,6 @@
 import nltk
-from itertools import chain
 from more_itertools import locate
 from nltk.corpus import wordnet as wn
-from numpy import exp2
 
 def process_query(query):
 
@@ -29,7 +27,7 @@ def process_query(query):
     return query_tokens
 
 
-
+'''
 def query_expansion_old(query_list):  ### DEPRECATED (DOES NOT LOOK VERY ACCURATE)
     expanded_query = []
     for word in query_list:
@@ -38,7 +36,7 @@ def query_expansion_old(query_list):  ### DEPRECATED (DOES NOT LOOK VERY ACCURAT
         expansion = [ x for x in expansion if "_" not in x ]
         expanded_query += expansion
     return(expanded_query)
-
+'''
 
 
 # NEW QUERY EXPANSION (more conservative)

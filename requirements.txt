@@ -8,3 +8,8 @@ sklearn
 gensim
 python-Levenshtein
 matplotlib
+torch
+torchtext
+torchvision
+more-itertools
+PyDictionary
